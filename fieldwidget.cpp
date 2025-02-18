@@ -1,5 +1,6 @@
 #include "fieldwidget.h"
 #include <QPainter>
+#include <QFileDialog>
 #include <QWheelEvent>
 #include <QMouseEvent>
 #include <cmath>
@@ -9,8 +10,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-FieldWidget::FieldWidget(QWidget *parent) : QWidget(parent)
-{
+FieldWidget::FieldWidget(QWidget *parent) : QWidget(parent) {
     setMinimumSize(400, 400);
 }
 
@@ -29,13 +29,17 @@ void FieldWidget::paintEvent(QPaintEvent *event) {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    // Устанавливаем систему координат: сначала центрируем (0,0) в центре виджета
-    painter.translate(width()/2, height()/2);
-    // Применяем смещение (панорамирование)
-    painter.translate(m_offset);
-    // Применяем масштабирование (zoom)
-    painter.scale(m_scale, m_scale);
+    // Центрируем систему координат
+    painter.translate(width() / 2, height() / 2);
 
+    // // Применяем панорамирование (смещение)
+     painter.translate(m_offset);
+
+    // // Применяем масштабирование
+     painter.scale(m_scale, m_scale);
+
+    // Рисуем сетку
+    //drawGrid(painter);
 
     // Рисуем заряды
     for (const Charge &charge : charges) {
@@ -43,25 +47,73 @@ void FieldWidget::paintEvent(QPaintEvent *event) {
         painter.drawEllipse(charge.position, 5, 5);
     }
 
-    // Рисуем силовые линии поля
+    // Рисуем силовые линии
     drawFieldLines(painter);
+
+    // Подписываем заряды
+    drawChargesWithLabels(painter);
+}
+// void FieldWidget::saveImageWithAnnotations() {
+//     QPixmap pixmap(size());
+//     pixmap.fill(Qt::white); // Фон изображения
+
+//     QPainter painter(&pixmap);
+//     painter.setRenderHint(QPainter::Antialiasing);
+
+//     // Рисуем силовые линии
+//     drawFieldLines(painter);
+
+//     // Рисуем заряды и их характеристики
+//     drawChargesWithLabels(painter);
+
+//     // Сохраняем изображение
+//     QString fileName = QFileDialog::getSaveFileName(nullptr, "Сохранить модель поля", "", "PNG Files (*.png);;SVG Files (*.svg)");
+//     if (!fileName.isEmpty()) {
+//         pixmap.save(fileName);
+//     }
+//}
+void FieldWidget::drawGrid(QPainter &painter) {
+    painter.setPen(QPen(Qt::lightGray, 1, Qt::DashLine));
+
+    // Определяем границы сетки в "мировых" координатах
+    const int gridMin = -1000;
+    const int gridMax =  1000;
+    const int step = 10;  // Расстояние между линиями сетки
+
+    // Вертикальные линии
+    for (int x = gridMin; x <= gridMax; x += step) {
+        painter.drawLine(QPointF(x, gridMin), QPointF(x, gridMax));
+    }
+
+    // Горизонтальные линии
+    for (int y = gridMin; y <= gridMax; y += step) {
+        painter.drawLine(QPointF(gridMin, y), QPointF(gridMax, y));
+    }
+}
+
+void FieldWidget::drawChargesWithLabels(QPainter &painter) {
+    QFont font("Arial", 10, QFont::Bold);
+    painter.setFont(font);
+    painter.setPen(Qt::black);
+
+    for (const Charge &charge : charges) {
+        QString chargeLabel = QString("%1 Кл").arg(charge.value, 0, 'f', 0);
+        painter.drawText(charge.position + QPointF(10, -10), chargeLabel);
+    }
 }
 
 void FieldWidget::drawFieldLines(QPainter &painter) {
-    // Параметры интегрирования
     const double ds = 5.0;
     const int numLinesPerCharge = 8;
     const double epsilon = 1e-2;
     const int maxSteps = 1000;
 
-    // Для каждого заряда создаём seed-точки, равномерно распределённые вокруг него
     for (const Charge &charge : charges) {
         for (int i = 0; i < numLinesPerCharge; ++i) {
             double angle = 2 * M_PI * i / numLinesPerCharge;
             QPointF direction(std::cos(angle), std::sin(angle));
             QPointF seed = charge.position + direction * 10.0;
 
-            // Интегрирование "вперёд" по направлению поля
             QVector<QPointF> forwardLine;
             QPointF p_forward = seed;
             forwardLine.append(seed);
@@ -75,7 +127,6 @@ void FieldWidget::drawFieldLines(QPainter &painter) {
                 forwardLine.append(p_forward);
             }
 
-            // Интегрирование "назад" против направления поля
             QVector<QPointF> backwardLine;
             QPointF p_backward = seed;
             backwardLine.append(seed);
@@ -107,7 +158,7 @@ QPointF FieldWidget::electricFieldAt(const QPointF &point) const {
     const double k = 8.9875517873681764e9;
     for (const Charge &charge : charges) {
         QPointF r = point - charge.position;
-        double r_sq = r.x()*r.x() + r.y()*r.y();
+        double r_sq = r.x() * r.x() + r.y() * r.y();
         double r_mag = std::sqrt(r_sq);
         if (r_mag < 1e-2)
             continue;
@@ -117,20 +168,19 @@ QPointF FieldWidget::electricFieldAt(const QPointF &point) const {
     return E;
 }
 
-void FieldWidget::wheelEvent(QWheelEvent *event) {// Изменяем масштаб: положительный delta (прокрутка вперед) увеличивает масштаб
-    double delta = event->angleDelta().y();
-    m_scale *= std::pow(1.001, delta);
-    update();
-}
+ void FieldWidget::wheelEvent(QWheelEvent *event) {
+     double delta = event->angleDelta().y();
+     m_scale *= std::pow(1.001, delta);
+     update();
+ }
 
-void FieldWidget::mousePressEvent(QMouseEvent *event) {
-    m_lastPos = event->pos();
-}
+ void FieldWidget::mousePressEvent(QMouseEvent *event) {
+     m_lastPos = event->pos();
+ }
 
-void FieldWidget::mouseMoveEvent(QMouseEvent *event) {
-    QPointF delta = event->pos() - m_lastPos;
-    // Применяем смещение с учетом текущего масштаба
-    m_offset += delta / m_scale;
-    m_lastPos = event->pos();
-    update();
-}
+ void FieldWidget::mouseMoveEvent(QMouseEvent *event) {
+     QPointF delta = event->pos() - m_lastPos;
+     m_offset += delta / m_scale;
+     m_lastPos = event->pos();
+     update();
+ }
