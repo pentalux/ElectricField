@@ -4,6 +4,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
+    this->setWindowTitle("Electric Field Calculator");
     fieldWidget = new FieldWidget(this);
     ui->gridLayout_2->addWidget(fieldWidget);
 }
@@ -14,7 +15,7 @@ MainWindow::~MainWindow() {
 
 void MainWindow::on_addChargeButton_clicked() {
     double x = ui->xCoordSpinBox->value();
-    double y = ui->yCoordSpinBox->value();
+    double y = -ui->yCoordSpinBox->value();
     double charge = ui->chargeSpinBox->value();
     fieldWidget->addCharge(QPointF(x, y), charge);
 }
