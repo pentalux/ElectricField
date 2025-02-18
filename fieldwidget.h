@@ -26,12 +26,17 @@ protected:
 
 private:
     QVector<Charge> charges;
-    // Параметры для масштабирования и панорамирования
-    double m_scale = 1.0;
-    QPointF m_offset = QPointF(0, 0);
-    QPoint m_lastPos;
+    double m_scale = 1.0;          // Коэффициент масштабирования
+    QPointF m_offset = QPointF(0, 0);  // Смещение (панорамирование)
+    QPoint m_lastPos;              // Последняя позиция мыши
 
+    const double minScale = 0.2;    // Минимальный масштаб
+    const double maxScale = 5.0;    // Максимальный масштаб
+    const double maxPan = 500.0;    // Ограничение панорамирования
+
+    void drawGrid(QPainter &painter);
     void drawFieldLines(QPainter &painter);
+    void drawChargesWithLabels(QPainter &painter);
     QPointF electricFieldAt(const QPointF &point) const;
 };
 
