@@ -16,5 +16,6 @@ This program assists high school educators who are beginning to study electrosta
 			2)Compatible with recent versions of macOS
 
 
-@created by Galochkin P.A. a.k.a. pentalux all rights reserved
+created by Galochkin P.A. a.k.a. @pentalux all rights reserved
+
 
