@@ -3,7 +3,7 @@
 An educational tool designed to assist high school educators in demonstrating electrostatics. It enables the accurate and interactive visualization of complex electrical charge systems.
 
 <p align="center">
-  <img src="demo.gif" alt="Electrostatic Field Visualizer Interface" width="800">
+  <img src="demo.gif" alt="Electrostatic Field Visualizer Interface" width="500">
 </p>
 
 ## Key Features & Recent Improvements (v 1.0.2)
