@@ -20,7 +20,7 @@ An educational tool designed to assist high school educators in demonstrating el
 
 ## Technical Details
 
-* **Framework:** Developed using the **Qt Framework** (Qt Creator) to provide a highly optimized, responsive, and user-friendly graphical interface.
+* **Framework:** Developed using the Qt Framework (Qt Creator) to provide a highly optimized, responsive, and user-friendly graphical interface.
 * **Compatibility:** Cross-platform support for Windows (x32/x64) and recent versions of macOS.
 
 *Created by P.A. Galochkin (@pentalux). All rights reserved.*
