@@ -1,4 +1,4 @@
-# Electrostatic Field Visualizer
+# Electric Field Calculator
 
 An educational tool designed to assist high school educators in demonstrating electrostatics. It enables the accurate and interactive visualization of complex electrical charge systems.
 
